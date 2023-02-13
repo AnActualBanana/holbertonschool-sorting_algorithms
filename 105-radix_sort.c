@@ -1,74 +1,79 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include "sort.h"
-
-#define BUCKETS 10
-#define GET_DIGIT(x, y) (((x) / (int)pow(10, y)) % 10)
+#include <stdlib.h>
 
 /**
- * radix_sort - sorts an array of integers in ascending order using radix sort
- * @array: the array to sort
- * @size: the size of the array
+ * pow_10 - calculates a positive power of 10
+ * @power: RV
+ * Return: value
+ */
+unsigned int pow_10(unsigned int power)
+{
+	unsigned int i, result;
+
+	result = 1;
+	for (i = 0; i < power; i++)
+		result *= 10;
+	return (result);
+}
+
+/**
+ * count_sort - sorts an array of integers in ascending order
+ * @array: RV
+ * @size: RV
+ * @digit: RV
+ * Return: value
+ */
+unsigned int count_sort(int *array, size_t size, unsigned int digit)
+{
+	int i, count[10] = {0};
+	int *copy = NULL;
+	size_t j, temp, total = 0;
+	unsigned int dp1, dp2, sort = 0;
+
+	dp2 = pow_10(digit - 1);
+	dp1 = dp2 * 10;
+	copy = malloc(sizeof(int) * size);
+	if (copy == NULL)
+		exit(1);
+	for (j = 0; j < size; j++)
+	{
+		copy[j] = array[j];
+		if (array[j] / dp1 != 0)
+			sort = 1;
+	}
+	for (i = 0; i < 10 ; i++)
+		count[i] = 0;
+	for (j = 0; j < size; j++)
+		count[(array[j] % dp1) / dp2] += 1;
+	for (i = 0; i < 10; i++)
+	{
+		temp = count[i];
+		count[i] = total;
+		total += temp;
+	}
+	for (j = 0; j < size; j++)
+	{
+		array[count[(copy[j] % dp1) / dp2]] = copy[j];
+		count[(copy[j] % dp1) / dp2] += 1;
+	}
+	free(copy);
+	return (sort);
+}
+
+/**
+ * radix_sort - sorts an array of integers in ascending order
+ * @array: RV
+ * @size: RV
  */
 void radix_sort(int *array, size_t size)
 {
-    int i, j, k, digit, m = 0, n = 0;
-    listint_t *buckets[BUCKETS];
-    listint_t *tmp, *head, *tail;
+	unsigned int i, sort = 1;
 
-    if (!array || size < 2)
-        return;
-
-    for (i = 0; i < (int)size; i++)
-    {
-        buckets[0] = malloc(sizeof(*buckets[0]));
-        if (!buckets[0])
-            return;
-        buckets[0] = array[i];
-        buckets[0]->prev = buckets[0]->next = NULL;
-        n++;
-        for (j = 0; j < n; j++)
-        {
-            head = tail = buckets[j];
-            while (tail->next)
-                tail = tail->next;
-            for (k = 0; k < BUCKETS; k++)
-                buckets[k] = NULL;
-            n = 0;
-            while (head)
-            {
-                digit = GET_DIGIT(head->n, m);
-                if (!buckets[digit])
-                {
-                    buckets[digit] = head;
-                    n++;
-                }
-                else
-                {
-                    tail = buckets[digit];
-                    while (tail->next)
-                        tail = tail->next;
-                    tail->next = head;
-                }
-                tmp = head->next;
-                head->next = NULL;
-                head = tmp;
-            }
-        }
-        m++;
-        n = 0;
-        for (k = 0; k < BUCKETS; k++)
-        {
-            head = buckets[k];
-            while (head)
-            {
-                array[n++] = head->n;
-                tmp = head;
-                head = head->next;
-                free(tmp);
-            }
-        }
-        print_array(array, size);
-    }
+	if (array == NULL || size < 2)
+		return;
+	for (i = 1; sort == 1; i++)
+	{
+		sort = count_sort(array, size, i);
+		print_array(array, size);
+	}
 }
