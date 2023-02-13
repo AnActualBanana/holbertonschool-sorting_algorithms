@@ -22,12 +22,11 @@ void radix_sort(int *array, size_t size)
 
     for (i = 0; i < (int)size; i++)
     {
-        tmp = malloc(sizeof(*tmp));
-        if (!tmp)
+        buckets[0] = malloc(sizeof(*buckets[0]));
+        if (!buckets[0])
             return;
-        tmp->n = array[i];
-        tmp->prev = tmp->next = NULL;
-        buckets[0] = tmp;
+        buckets[0]->n = array[i];
+        buckets[0]->prev = buckets[0]->next = NULL;
         n++;
         for (j = 0; j < n; j++)
         {
