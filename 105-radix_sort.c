@@ -25,7 +25,7 @@ void radix_sort(int *array, size_t size)
         buckets[0] = malloc(sizeof(*buckets[0]));
         if (!buckets[0])
             return;
-        buckets[0]->n = array[i];
+        buckets[0] = array[i];
         buckets[0]->prev = buckets[0]->next = NULL;
         n++;
         for (j = 0; j < n; j++)
